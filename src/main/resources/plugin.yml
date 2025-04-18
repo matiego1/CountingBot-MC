@@ -1,5 +1,19 @@
-name: Counting-MC
-version: '1.0.0'
+name: CountingMC
+version: '${maven.version}'
 main: me.matiego.countingmc.Main
 api-version: '1.20'
-authors: [ Matiego ]
+authors: [Matiego]
+depend: [Vault]
+commands:
+  countingmc:
+    permission: countingmc.countingmc
+    usage: '§cUsage: /<command> [version|reload|enable|disable]'
+  linkdiscord:
+    permission: countingmc.linkdiscord
+    usage: '§cUsage: /<command>'
+permissions:
+  countingmc.countingmc:
+    default: op
+  countingmc.linkdiscord:
+    default: true
+
