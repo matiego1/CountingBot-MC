@@ -64,7 +64,6 @@ public class WebServer {
     }
 
     private void manageAccess(@NotNull Context ctx) {
-        // Auth is turned on, make sure there is a header called "key"
         String authHeader = ctx.header(KEY_HEADER);
         if (authHeader != null && Objects.equals(authHeader, authKey)) return;
 
@@ -80,7 +79,6 @@ public class WebServer {
             final String fullKeystorePath = instance.getDataFolder().getAbsolutePath() + File.separator + keyStorePath;
 
             if (Files.exists(Paths.get(fullKeystorePath))) {
-                // Register the SSL plugin
                 SslPlugin plugin = new SslPlugin(conf -> {
                     conf.keystoreFromPath(fullKeystorePath, keyStorePassword);
                     conf.http2 = false;
