@@ -46,7 +46,7 @@ public class LinkDiscordCommand extends Command {
         codes.entrySet().removeIf(e -> uuid.equals(e.getValue().getFirst()));
         codes.put(code, new Pair<>(uuid, Utils.now()));
 
-        sender.sendMessage(Utils.getComponentByString("&bTo finish linking your accounts, use the &9/link-account&b command in Discord server with the code &9" + code + "&b. The code is only valid for 5 minutes!"));
+        sender.sendMessage(Utils.getComponentByString("&bTo finish linking your accounts, use the &9/minecraft link&b command in Discord server with the code &9" + code + "&b. The code is only valid for 5 minutes!"));
         return 15;
     }
 
