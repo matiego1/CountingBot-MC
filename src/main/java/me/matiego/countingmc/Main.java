@@ -3,7 +3,7 @@ package me.matiego.countingmc;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.Synchronized;
-import me.matiego.countingmc.commands.countingMcCommand;
+import me.matiego.countingmc.commands.CountingMcCommand;
 import me.matiego.countingmc.commands.LinkDiscordCommand;
 import me.matiego.countingmc.utils.Logs;
 import me.matiego.countingmc.utils.Pair;
@@ -68,7 +68,7 @@ public final class Main extends JavaPlugin {
         // Register commands
         commandsHandler = new CommandsHandler(
                 new LinkDiscordCommand(instance),
-                new countingMcCommand(instance)
+                new CountingMcCommand(instance)
         );
 
         // Setup economy

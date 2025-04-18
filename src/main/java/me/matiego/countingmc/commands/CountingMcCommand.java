@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class countingMcCommand extends Command {
-    public countingMcCommand(@NotNull Main instance) {
+public class CountingMcCommand extends Command {
+    public CountingMcCommand(@NotNull Main instance) {
         super(instance);
     }
 
