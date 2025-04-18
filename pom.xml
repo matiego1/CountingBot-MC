@@ -6,7 +6,7 @@
 
     <groupId>me.matiego.countingmc</groupId>
     <artifactId>Counting-MC</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>Counting-MC</name>
