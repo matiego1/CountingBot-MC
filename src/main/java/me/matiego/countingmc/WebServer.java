@@ -113,7 +113,7 @@ public class WebServer {
     }
 
     public void addRoutes() {
-        javalin.get("link", new LinkRoute(instance)::link);
+        javalin.post("link", new LinkRoute(instance)::link);
         javalin.post("deposit", new DepositRoute(instance)::deposit);
     }
 
