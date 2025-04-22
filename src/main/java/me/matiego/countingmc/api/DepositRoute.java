@@ -43,7 +43,7 @@ public class DepositRoute {
 
         OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
         if (!player.hasPlayedBefore()) {
-            throw new BadRequestResponse("This player has never played on this server");
+            throw new NotFoundResponse("This player has never played on this server");
         }
 
         double amount;
