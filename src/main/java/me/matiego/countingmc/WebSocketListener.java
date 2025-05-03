@@ -57,7 +57,7 @@ public class WebSocketListener implements WebSocket.Listener {
             return switch (json.getString("path")) {
                 case "link" -> link.handle(json.getJSONObject("params"));
                 case "deposit" -> deposit.handle(json.getJSONObject("params"));
-                default -> new Response(404, "Unknown request path");
+                default -> new Response(400, "Unknown request path");
             };
         } catch (Exception e) {
             Logs.error("Failed to get response to a WebSocket message", e);
