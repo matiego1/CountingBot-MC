@@ -1,14 +1,16 @@
 package me.matiego.countingmc.api;
 
-import io.javalin.http.*;
 import me.matiego.countingmc.Main;
 import me.matiego.countingmc.utils.Logs;
+import me.matiego.countingmc.utils.Response;
+import me.matiego.countingmc.utils.Utils;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.util.UUID;
 
@@ -21,56 +23,56 @@ public class DepositRoute {
 
     private final Main instance;
 
-    public void deposit(@NotNull Context ctx) {
-        String uuidParam = ctx.formParam("uuid");
-        String amountParam = ctx.formParam("amount");
+    public @NotNull Response handle(@NotNull JSONObject params) {
+        String uuidParam = Utils.getString(params, "uuid");
+        String amountParam = Utils.getString(params, "amount");
 
         if (uuidParam == null || amountParam == null) {
-            throw new BadRequestResponse("Missing uuid and/or amount");
+            return new Response(400, "Missing uuid and/or amount");
         }
 
         Economy economy = instance.getEconomy();
         if (economy == null) {
-            throw new ServiceUnavailableResponse("Economy provider is not available.");
+            return new Response(503, "Economy provider is not available.");
         }
 
         UUID uuid;
         try {
             uuid = UUID.fromString(uuidParam);
         } catch (IllegalArgumentException e) {
-            throw new BadRequestResponse("Invalid UUID");
+            return new Response(400, "Invalid UUID");
         }
 
         OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
         if (!player.hasPlayedBefore()) {
-            throw new NotFoundResponse("This player has never played on this server");
+            return new Response(404, "This player has never played on this server");
         }
 
         double amount;
         try {
             amount = Double.parseDouble(amountParam);
         } catch (NumberFormatException e) {
-            throw new BadRequestResponse("Invalid amount");
+            return new Response(400, "Invalid amount");
         }
         if (amount <= 0) {
-            throw new BadRequestResponse("Amount must be a value greater than zero");
+            return new Response(400, "Amount must be a value greater than zero");
         }
         if (amount > MAX_DEPOSIT_AMOUNT) {
-            throw new BadRequestResponse("Amount must be a value smaller than " + MAX_DEPOSIT_AMOUNT);
+            return new Response(400, "Amount must be a value smaller than " + MAX_DEPOSIT_AMOUNT);
         }
 
         if (!instance.isDepositAllowed()) {
-            throw new ForbiddenResponse("Deposits are currently disabled");
+            return new Response(403, "Deposits are currently disabled");
         }
 
         FileConfiguration config = instance.getConfig();
         if (config.getStringList("blocked-uuids").contains(uuid.toString())) {
-            throw new ForbiddenResponse("This uuid is blocked");
+            return new Response(403, "This uuid is blocked");
         }
 
         EconomyResponse response = economy.depositPlayer(player, amount);
         if (response.type != EconomyResponse.ResponseType.SUCCESS) {
-            throw new InternalServerErrorResponse(response.errorMessage);
+            return new Response(500, response.errorMessage);
         }
 
         if (config.getBoolean("log-every-deposit", true)) {
@@ -81,6 +83,6 @@ public class DepositRoute {
             Logs.info("Deposited " + economy.format(amount) + " into " + name + " account.");
         }
 
-        ctx.status(200).json("success");
+        return new Response(200, "success");
     }
 }

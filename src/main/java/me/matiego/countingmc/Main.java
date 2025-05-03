@@ -29,7 +29,7 @@ public final class Main extends JavaPlugin {
 
     @Getter private Economy economy;
     private CommandsHandler commandsHandler;
-    private WebServer webServer;
+    @Getter private WebSocketClient webSocketClient;
 
     @Getter(onMethod_ = {@Synchronized})
     @Setter(onMethod_ = {@Synchronized})
@@ -78,11 +78,12 @@ public final class Main extends JavaPlugin {
         }
 
         // Setup web server
-        Logs.info("Starting a web server...");
+        Logs.info("Connecting to the Counting-Bot's Rewards API...");
         try {
-            setupWebServer();
+            webSocketClient = new WebSocketClient(instance);
+            webSocketClient.start();
         } catch (Exception e) {
-            Logs.error("Failed to start a web server", e);
+            Logs.error("Failed to connect to the Rewards API", e);
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
@@ -105,11 +106,6 @@ public final class Main extends JavaPlugin {
         return true;
     }
 
-    public void setupWebServer() {
-        webServer = new WebServer(this, getConfig());
-        webServer.start(getConfig().getInt("port", 4567));
-        webServer.addRoutes();
-    }
 
     public void reload() {
         long time = Utils.now();
@@ -119,18 +115,18 @@ public final class Main extends JavaPlugin {
         setDepositAllowed(false);
         commandsHandler.setEnabled(false);
 
-        Logs.info("Stopping the web server...");
-        webServer.stop();
+        Logs.info("Closing a connection to the Rewards API...");
+        webSocketClient.close();
 
         // Enable
         reloadConfig();
         setupEconomy();
 
-        Logs.info("Starting a web server...");
+        Logs.info("Connecting to the Counting-Bot's Rewards API...");
         try {
-            setupWebServer();
+            webSocketClient.start();
         } catch (Exception e) {
-            Logs.error("Failed to start a web server.");
+            Logs.error("Failed to connect to the Rewards API", e);
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
@@ -149,8 +145,8 @@ public final class Main extends JavaPlugin {
         if (commandsHandler != null) commandsHandler.setEnabled(false);
         HandlerList.unregisterAll(this);
 
-        Logs.info("Stopping the web server...");
-        if (webServer != null) webServer.stop();
+        Logs.info("Closing a connection to the Rewards API...");
+        if (webSocketClient != null) webSocketClient.close();
 
         // End all tasks
         Bukkit.getAsyncScheduler().cancelTasks(this);

@@ -6,7 +6,7 @@
 
     <groupId>me.matiego.countingmc</groupId>
     <artifactId>Counting-MC</artifactId>
-    <version>1.2.0</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
 
     <name>Counting-MC</name>
@@ -84,6 +84,7 @@
             <version>1.20.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+
         <!-- Annotations -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -112,6 +113,13 @@
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- JSON -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20250107</version>
         </dependency>
     </dependencies>
 </project>

@@ -1,13 +1,11 @@
 package me.matiego.countingmc.api;
 
-import io.javalin.http.BadRequestResponse;
-import io.javalin.http.Context;
-import io.javalin.http.NotFoundResponse;
-import io.javalin.http.RequestTimeoutResponse;
 import me.matiego.countingmc.Main;
 import me.matiego.countingmc.utils.Pair;
+import me.matiego.countingmc.utils.Response;
 import me.matiego.countingmc.utils.Utils;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.util.Map;
 import java.util.UUID;
@@ -21,21 +19,21 @@ public class LinkRoute {
 
     private final Main instance;
 
-    public void link(@NotNull Context ctx) {
-        String code = ctx.formParam("code");
+    public @NotNull Response handle(@NotNull JSONObject params) {
+        String code = Utils.getString(params, "code");
         if (code == null) {
-            throw new BadRequestResponse("Missing code");
+            return new Response(400, "Missing code");
         }
 
         Pair<UUID, Long> pair = instance.getVerificationCode().remove(code);
         if (pair == null) {
-            throw new NotFoundResponse("Unknown verification code");
+            return new Response(404, "Unknown verification code");
         }
 
         if (Utils.now() - pair.getSecond() > CODE_VALID_SECONDS * 1000L) {
-            throw new RequestTimeoutResponse("Verification code timed out");
+            return new Response(408, "Verification code timed out");
         }
 
-        ctx.status(200).json(Map.of("uuid", pair.getFirst().toString()));
+        return new Response(200, new JSONObject(Map.of("uuid", pair.getFirst().toString())).toString());
     }
 }

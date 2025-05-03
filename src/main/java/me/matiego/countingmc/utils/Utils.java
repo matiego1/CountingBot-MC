@@ -4,6 +4,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -55,5 +58,12 @@ public class Utils {
 
         if (result.isEmpty()) return useMilliseconds ? "0ms" : "0s";
         return result.substring(0, result.length() - 1);
+    }
+
+    public static @Nullable String getString(@NotNull JSONObject json, @NotNull String path) {
+        try {
+            return json.getString(path);
+        } catch (JSONException | NullPointerException ignored) {}
+        return null;
     }
 }
