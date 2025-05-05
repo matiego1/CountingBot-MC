@@ -7,7 +7,6 @@ import me.matiego.countingmc.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
-import java.util.Map;
 import java.util.UUID;
 
 public class LinkRoute {
@@ -34,6 +33,8 @@ public class LinkRoute {
             return new Response(408, "Verification code timed out");
         }
 
-        return new Response(200, new JSONObject(Map.of("uuid", pair.getFirst().toString())).toString());
+        JSONObject json = new JSONObject();
+        json.put("uuid", pair.getFirst().toString());
+        return new Response(200, json.toString());
     }
 }

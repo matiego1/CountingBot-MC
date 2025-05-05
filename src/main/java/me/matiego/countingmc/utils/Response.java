@@ -5,8 +5,6 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
-import java.util.Map;
-
 @Getter
 public class Response {
     public Response(int statusCode, @NotNull String message) {
@@ -20,10 +18,10 @@ public class Response {
     private final String message;
 
     public @NotNull String getAsJSON() {
-        return new JSONObject(Map.of(
-                "id", id,
-                "status-code", String.valueOf(statusCode),
-                "message", message
-        )).toString();
+        JSONObject json = new JSONObject();
+        json.put("id", String.valueOf(id)); // properly handle null
+        json.put("status-code", statusCode);
+        json.put("message", message);
+        return json.toString();
     }
 }

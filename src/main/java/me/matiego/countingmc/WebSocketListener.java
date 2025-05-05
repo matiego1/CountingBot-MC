@@ -19,15 +19,25 @@ public class WebSocketListener implements WebSocket.Listener {
         link = new LinkRoute(instance);
     }
 
+    private final static int UNAUTHORIZED_CODE = 3000;
     private final Main instance;
     private final DepositRoute deposit;
     private final LinkRoute link;
 
     @Override
     public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
-        if (statusCode == WebSocket.NORMAL_CLOSURE) return null;
-        Logs.info("WebSocket is closed. Reconnecting... Status code:" + statusCode + ", Reason: " + reason);
-        instance.getWebSocketClient().scheduleReconnect();
+        if (statusCode == UNAUTHORIZED_CODE) {
+            Logs.error("WebSocket is closed. (Code: " + statusCode + "; Reason: " + reason + ") Fix the config.yml file, and use a \"/countingmc reload\" command or restart the server.");
+            return null;
+        }
+
+        if (instance.getWebSocketClient().isClosed()) {
+            Logs.info("WebSocket is closed. (Code: " + statusCode + "; Reason: " + reason + ")");
+            return null;
+        }
+
+        Logs.warning("WebSocket is closed. (Code: " + statusCode + "; Reason: " + reason + ") Reconnecting...");
+        instance.getWebSocketClient().scheduleReconnect(statusCode == WebSocket.NORMAL_CLOSURE ? 10 : 0);
         return null;
     }
 
@@ -39,7 +49,7 @@ public class WebSocketListener implements WebSocket.Listener {
     @Override
     public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
         try {
-            Response response = getResponse(data);
+            Response response = getResponse(String.valueOf(data));
             webSocket.sendText(response.getAsJSON(), true);
         } catch (Exception e) {
             Logs.error("Failed to handle a WebSocket message", e);
@@ -49,7 +59,7 @@ public class WebSocketListener implements WebSocket.Listener {
         return null;
     }
 
-    private @NotNull Response getResponse(@Nullable CharSequence data) {
+    private @NotNull Response getResponse(@Nullable String data) {
         try {
             if (data == null) return new Response(400, "Empty text data");
 
@@ -64,7 +74,7 @@ public class WebSocketListener implements WebSocket.Listener {
             response.setId(id);
             return response;
         } catch (Exception e) {
-            Logs.error("Failed to get response to a WebSocket message", e);
+            Logs.error("Failed to get a response to a WebSocket message", e);
             return new Response(500, e.getMessage());
         }
     }
