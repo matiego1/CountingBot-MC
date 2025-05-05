@@ -4,6 +4,7 @@ import me.matiego.countingmc.utils.Logs;
 import me.matiego.countingmc.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 
+import javax.net.ssl.SSLHandshakeException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -102,12 +103,13 @@ public class WebSocketClient {
                             e = e1.getCause();
                         }
 
-                        if (e instanceof IllegalArgumentException) {
+                        if (e instanceof IllegalArgumentException || e instanceof SSLHandshakeException) {
                             Logs.error("Failed to connect to WebSocket! Fix the config.yml file, and use a \"/countingmc reload\" command or restart the server.", e);
                             close();
                             result.complete(null);
                             return null;
                         }
+
                         Logs.error("Failed to connect to WebSocket: " + e.getClass().getName() + ": " + e.getMessage() + ". Scheduling a reconnect...");
                         scheduleReconnect();
                         result.complete(null);
