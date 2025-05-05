@@ -34,7 +34,7 @@ public final class Main extends JavaPlugin {
     @Getter(onMethod_ = {@Synchronized})
     @Setter(onMethod_ = {@Synchronized})
     private boolean depositAllowed = false;
-    @Getter private Map<String, Pair<UUID, Long>> verificationCode = Collections.synchronizedMap(Utils.createLimitedSizeMap(500));
+    @Getter private final Map<String, Pair<UUID, Long>> verificationCode = Collections.synchronizedMap(Utils.createLimitedSizeMap(500));
 
     @Override
     public void onEnable() {
