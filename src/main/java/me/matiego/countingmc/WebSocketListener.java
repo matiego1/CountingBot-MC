@@ -33,7 +33,7 @@ public class WebSocketListener implements WebSocket.Listener {
 
     @Override
     public void onError(WebSocket webSocket, Throwable error) {
-        Logs.error("An error occurred", error);
+        Logs.error("An WebSocket error occurred", error);
     }
 
     @Override
@@ -52,13 +52,17 @@ public class WebSocketListener implements WebSocket.Listener {
     private @NotNull Response getResponse(@Nullable CharSequence data) {
         try {
             if (data == null) return new Response(400, "Empty text data");
-            JSONObject json = new JSONObject(data);
 
-            return switch (json.getString("path")) {
+            JSONObject json = new JSONObject(data);
+            String id = json.getString("id");
+
+            Response response = switch (json.getString("path")) {
                 case "link" -> link.handle(json.getJSONObject("params"));
                 case "deposit" -> deposit.handle(json.getJSONObject("params"));
                 default -> new Response(400, "Unknown request path");
             };
+            response.setId(id);
+            return response;
         } catch (Exception e) {
             Logs.error("Failed to get response to a WebSocket message", e);
             return new Response(500, e.getMessage());
