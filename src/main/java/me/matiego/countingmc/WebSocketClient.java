@@ -4,13 +4,12 @@ import me.matiego.countingmc.utils.Logs;
 import me.matiego.countingmc.utils.Utils;
 import org.jetbrains.annotations.NotNull;
 
-import javax.net.ssl.SSLHandshakeException;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.net.URI;
+import javax.net.ssl.*;
+import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -24,6 +23,17 @@ public class WebSocketClient {
     private static final long RECONNECT_DELAY_MULTIPLIER = 2;
     private static final int MAX_RECONNECT_DELAY = 600;
     private static final int PING_DELAY = 5;
+    private static final TrustManager SSL_TRUST_MANAGER = new X509ExtendedTrustManager() {
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s, Socket socket) {}
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String s, Socket socket) {}
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s, SSLEngine sslEngine) {}
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String s, SSLEngine sslEngine) {}
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s) {}
+        public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+        }
+    };
 
     private final Main instance;
     private HttpClient client;
@@ -34,7 +44,7 @@ public class WebSocketClient {
     private URI apiUri;
     private boolean closed = false;
 
-    public void start() {
+    public void start() throws Exception {
         close();
 
         scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -43,9 +53,13 @@ public class WebSocketClient {
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         CookieHandler.setDefault(cookieManager);
 
+        SSLContext sslContext = SSLContext.getInstance("SSL");
+        sslContext.init(null, new TrustManager[]{SSL_TRUST_MANAGER}, new SecureRandom());
+
         client = HttpClient.newBuilder()
                 .cookieHandler(CookieHandler.getDefault())
                 .followRedirects(HttpClient.Redirect.ALWAYS)
+                .sslContext(sslContext)
                 .build();
 
         apiKey = instance.getConfig().getString("key", "");
