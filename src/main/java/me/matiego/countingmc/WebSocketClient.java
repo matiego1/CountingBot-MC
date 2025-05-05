@@ -117,7 +117,7 @@ public class WebSocketClient {
                             e = e1.getCause();
                         }
 
-                        if (e instanceof IllegalArgumentException || e instanceof SSLHandshakeException) {
+                        if (e instanceof IllegalArgumentException || e instanceof SSLException) {
                             Logs.error("Failed to connect to WebSocket! Fix the config.yml file, and use a \"/countingmc reload\" command or restart the server.", e);
                             close();
                             result.complete(null);
